@@ -1,28 +1,42 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PetsSample.DTOs;
+using PetStore;
+using Pet = PetsSample.DTOs.Pet;
 
 namespace PetsSample.Pages
 {
     public class IndexModel : PageModel
     {
 
-       private readonly ILogger<IndexModel> _logger;
+        private readonly ILogger<IndexModel> _logger;
+        private readonly PetStoreApiClient _petStoreApiClient;
 
         public IList<Pet> Pets { get; set; }
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public IndexModel(ILogger<IndexModel> logger,
+            PetStoreApiClient petStoreApiClient)
         {
-            _logger = logger;
+            _logger = logger; 
+            _petStoreApiClient = petStoreApiClient;
         }
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
-            Pets = new List<Pet>(2) { 
-                new Pet { Id = 1, Name = "Pepe" },
-                new Pet { Id = 2, Name = "Firulais" },
-            };
-           
+            try
+            {
+                var result = await _petStoreApiClient.FindPetsByStatusAsync(Status.Available);
+                Pets = new List<Pet>(result.Count);
+                foreach (var pet in result)
+                {
+                    Pets.Add(new Pet { Id = pet.Id, Name = pet.Name });
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }           
         }
     }
 }
