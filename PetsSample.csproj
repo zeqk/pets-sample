@@ -6,4 +6,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NSwag.MSBuild" Version="13.20.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <Target Name="PetStoreNSwag" BeforeTargets="CoreCompile;PrepareResource">
+    <Exec ConsoleToMSBuild="true" Command="$(NSwagExe_Net60) run petstore.nswag /variables:Configuration=$(Configuration),IntermediateOutputPath=$(IntermediateOutputPath)">
+      <Output TaskParameter="ExitCode" PropertyName="NSwagExitCode" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="NSwagOutput" />
+    </Exec>
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)\PetStoreApiClient.generated.cs" />
+    </ItemGroup>
+  </Target>
+
 </Project>
